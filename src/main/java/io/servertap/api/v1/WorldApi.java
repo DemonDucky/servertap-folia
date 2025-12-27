@@ -8,6 +8,7 @@ import io.javalin.openapi.*;
 import io.servertap.Constants;
 import io.servertap.ServerTapMain;
 import io.servertap.api.v1.models.World;
+import io.servertap.utils.SchedulerUtil;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveOutputStream;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorOutputStream;
@@ -48,17 +49,18 @@ public class WorldApi {
     )
     public void saveAllWorlds(Context ctx) {
         if (main != null) {
-            // Run the saves on the main thread, can't use sync methods from here otherwise
-            bukkitServer.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                for (org.bukkit.World world : Bukkit.getWorlds()) {
+            // Run the saves on the appropriate scheduler (global region for Folia, main thread for Paper)
+            for (org.bukkit.World world : Bukkit.getWorlds()) {
+                // Use region scheduler for Folia to ensure world operations are thread-safe
+                SchedulerUtil.runTaskAtLocation(main, world.getSpawnLocation(), () -> {
                     try {
                         world.save();
                     } catch (Exception e) {
                         // Just warn about the issue
                         log.warning(String.format("Couldn't save World %s %s", world.getName(), e.getMessage()));
                     }
-                }
-            });
+                });
+            }
         }
 
         ctx.json("success");
@@ -87,8 +89,8 @@ public class WorldApi {
 
         if (world != null) {
             if (main != null) {
-                // Run the saves on the main thread, can't use sync methods from here otherwise
-                bukkitServer.getScheduler().scheduleSyncDelayedTask(main, () -> {
+                // Use region scheduler for Folia to ensure world operations are thread-safe
+                SchedulerUtil.runTaskAtLocation(main, world.getSpawnLocation(), () -> {
                     try {
                         world.save();
                     } catch (Exception e) {

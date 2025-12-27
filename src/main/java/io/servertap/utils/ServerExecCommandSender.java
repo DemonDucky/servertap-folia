@@ -2,6 +2,7 @@ package io.servertap.utils;
 
 import io.servertap.Constants;
 import io.servertap.ServerTapMain;
+import io.servertap.utils.SchedulerUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -42,7 +43,7 @@ public class ServerExecCommandSender implements ConsoleCommandSender {
     }
 
     public CompletableFuture<List<String>> executeCommand(String command, long messagingTime, TimeUnit messagingUnit) {
-        Future<Boolean> commandFuture = Bukkit.getScheduler().callSyncMethod(
+        CompletableFuture<Boolean> commandFuture = SchedulerUtil.callSyncMethod(
                 main,
                 () -> Bukkit.dispatchCommand(this, command)
         );

@@ -9,6 +9,7 @@ import io.servertap.Constants;
 import io.servertap.ServerTapMain;
 import io.servertap.utils.LagDetector;
 import io.servertap.utils.ServerExecCommandSender;
+import io.servertap.utils.SchedulerUtil;
 import io.servertap.api.v1.models.*;
 import io.servertap.mojang.api.MojangApiService;
 import io.servertap.utils.pluginwrappers.EconomyWrapper;
@@ -44,7 +45,7 @@ public class ServerApi {
         this.economy = economy;
         this.lagDetector = lagDetector;
 
-        Bukkit.getScheduler().runTask(main, () -> {
+        SchedulerUtil.runTask(main, () -> {
             scoreboardManager = Bukkit.getScoreboardManager();
         });
     }
@@ -166,7 +167,9 @@ public class ServerApi {
     public void broadcastPost(Context ctx) {
         String msg = ctx.formParam("message");
         if (msg != null && msg.isEmpty()) throw new BadRequestResponse(Constants.CHAT_MISSING_MESSAGE);
-        Bukkit.broadcastMessage(msg);
+        final String finalMsg = msg;
+        // Schedule broadcast on global region scheduler (Folia) or main thread (Paper)
+        SchedulerUtil.runTask(main, () -> Bukkit.broadcastMessage(finalMsg));
         ctx.json("success");
     }
 
@@ -205,7 +208,10 @@ public class ServerApi {
 
         org.bukkit.entity.Player player = Bukkit.getPlayer(playerUUID);
         if (player == null) throw new NotFoundResponse(Constants.PLAYER_NOT_FOUND);
-        player.sendMessage(msg);
+        
+        final String finalMsg = msg;
+        // Schedule message send on entity scheduler (Folia) or main thread (Paper)
+        SchedulerUtil.runTaskOnEntity(main, player, () -> player.sendMessage(finalMsg));
 
         ctx.json("success");
     }

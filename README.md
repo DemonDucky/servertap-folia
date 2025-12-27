@@ -1,5 +1,7 @@
 # ServerTap
 
+# This is the unofficial fork of servertap support for folia. I tested for very simple features that I use, which is RESTful API. Not all features has been tested, use at your own risk
+
 <a href="https://github.com/servertap-io/servertap/actions/workflows/build.yml"><img alt="GitHub Workflow Status" src="https://img.shields.io/github/actions/workflow/status/servertap-io/servertap/build.yml?branch=main"></a>
 <img alt="bukkit version %3E%3D 1.16" src="https://img.shields.io/badge/bukkit%20version-%3E%3D1.16-brightgreen">
 <img alt="GitHub all releases" src="https://img.shields.io/github/downloads/servertap-io/servertap/total?color=brightgreen">

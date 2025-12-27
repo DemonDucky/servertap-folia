@@ -5,6 +5,7 @@ import io.javalin.websocket.WsContext;
 import io.servertap.ServerTapMain;
 import io.servertap.api.v1.models.ConsoleLine;
 import io.servertap.utils.ConsoleListener;
+import io.servertap.utils.SchedulerUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 
@@ -52,9 +53,8 @@ public class WebsocketHandler {
 
                 final String command = cmd;
                 if (main != null) {
-                    // Run the command on the main thread
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-
+                    // Run the command on the global region scheduler (Folia) or main thread (Paper)
+                    SchedulerUtil.runTask(main, () -> {
                         try {
                             CommandSender sender = Bukkit.getServer().getConsoleSender();
                             Bukkit.dispatchCommand(sender, command);
